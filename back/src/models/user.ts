@@ -10,4 +10,10 @@ export class User {
   public getName() {
     return this.name;
   }
+
+  public toJson() {
+    return {
+      name: this.name,
+    };
+  }
 }

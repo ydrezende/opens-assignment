@@ -1,47 +1,40 @@
-import { Scramble } from 'src/models/scramble';
-import { open } from 'node:fs/promises';
-import { Scramble as ScrambeInterface } from 'src/interfaces/scramble';
+import { Scramble } from 'src/interfaces/scramble';
 import { InternalServerErrorException } from '@nestjs/common';
+import { readFileSync, writeFile, writeFileSync } from 'node:fs';
+import { Entry } from 'src/interfaces/entry';
 
 export class ScrambleStorage {
-  public static async save(scramble: Scramble): Promise<boolean> {
-    //Load user data
-    const file = await open('scrambles.json', 'w+');
+  public static async addEntry(entry: Entry): Promise<boolean> {
     try {
       //Read storage content
-      const scrambles: ScrambeInterface[] = JSON.parse(
-        await file.readFile('utf8'),
+      const scramble: Scramble = JSON.parse(
+        readFileSync('scramble-data.json', 'utf8'),
       );
 
-      //Add user to the storage
-      scrambles.push({
-        entries: scramble.entries,
-      });
+      scramble.entries.push(entry);
 
       //Write to storage
-      await file.writeFile(JSON.stringify(scrambles), 'utf8');
+      writeFileSync('scramble-data.json', JSON.stringify(scramble), 'utf8');
+
+
+      return true;
     } catch (err) {
       throw new InternalServerErrorException(err);
-    } finally {
-      await file.close();
     }
-
-    return true;
   }
 
-  public static async getScrambles(): Promise<ScrambeInterface[]> {
-    //Load user data
-    const file = await open('scrambles.json', 'w+');
-    let scrambles: ScrambeInterface[];
+  public static async getScramble(): Promise<Scramble> {
     try {
       //Read storage content
-      scrambles = JSON.parse(await file.readFile('utf8'));
+      const scramble = JSON.parse(readFileSync('scramble-data.json', 'utf8'));
+
+      return scramble;
     } catch (err) {
       throw new InternalServerErrorException(err);
-    } finally {
-      await file.close();
     }
+  }
 
-    return scrambles;
+  public static reset() {
+    writeFile('scramble-data.json', '{"entries": []}', 'utf8', () => {});
   }
 }

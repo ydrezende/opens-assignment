@@ -1,17 +1,30 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div>
+      Tipo:
+      <select v-model="scramble_type">
+        <option value="proximity">Mais próximo</option>
+        <option value="distance">Mais distante</option>
+        <option value="random">Aleatório</option>
+      </select>
+    </div>
+    <scramble-info :type="scramble_type"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ScrambleInfo from './components/ScrambleInfo.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    ScrambleInfo
+  },
+  data() {
+    return {
+      scramble_type: 'proximity',
+    }
   }
 }
 </script>

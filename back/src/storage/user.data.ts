@@ -1,17 +1,24 @@
 import { User } from 'src/models/user';
 import { open } from 'node:fs/promises';
+import { User as UserData } from 'src/interfaces/user';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
-interface UserData {
-  name: string;
-}
+
 
 export class UserStorage {
-  public static async save(user: User) {
+  public static async save(user: User): Promise<boolean> {
     //Load user data
-    const file = await open('users.json', 'r+');
+    const file = await open('users.json', 'w+');
     try {
       //Read storage content
       const users: UserData[] = JSON.parse(await file.readFile('utf8'));
+
+      //check if same name exists
+      if (users.find((element) => user.name == element.name))
+        throw new BadRequestException('Name already exists');
 
       //Add user to the storage
       users.push({
@@ -20,8 +27,10 @@ export class UserStorage {
 
       //Write to storage
       await file.writeFile(JSON.stringify(users), 'utf8');
+
+      return true;
     } catch (err) {
-      console.error(err);
+      throw new InternalServerErrorException(err);
     }
   }
 }

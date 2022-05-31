@@ -1,8 +1,10 @@
+import { User as UserInterface } from 'src/interfaces/user';
+
 export class User {
   public name: string;
 
-  construct({ name }) {
-    this.name = name;
+  construct(user: UserInterface) {
+    this.name = user.name;
   }
 
   public getName() {
